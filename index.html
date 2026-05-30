@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gift 1/6 for Mylynh - 6s Epic Edition</title>
+    <title>Gift 1/6 for Mylynh - 6s Smooth Epic</title>
     <style>
-        /* ================= KẾT CẤU VŨ TRỤ ================= */
+        /* ================= TỐI ƯU HÓA GPU (HARDWARE ACCELERATION) ================= */
         body {
             margin: 0; overflow: hidden; background: #020004; 
-            height: 100vh; perspective: 3000px; font-family: sans-serif;
+            height: 100vh; perspective: 2000px; font-family: sans-serif;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* Dùng opacity thay vì drop-shadow để giả lập ánh sáng */
         .ambient-rays {
             position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
             background: conic-gradient(from 0deg, 
-                transparent 0deg, rgba(255,20,147,0.08) 45deg, 
-                transparent 90deg, rgba(0,255,255,0.05) 135deg, 
-                transparent 180deg, rgba(255,20,147,0.08) 225deg, 
-                transparent 270deg, rgba(0,255,255,0.05) 315deg, transparent 360deg);
+                transparent 0deg, rgba(255,20,147,0.05) 45deg, 
+                transparent 90deg, rgba(0,255,255,0.03) 135deg, 
+                transparent 180deg, rgba(255,20,147,0.05) 225deg, 
+                transparent 270deg, rgba(0,255,255,0.03) 315deg, transparent 360deg);
             animation: rotateRays 40s linear infinite; z-index: -2; pointer-events: none;
-            will-change: transform;
         }
-        @keyframes rotateRays { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes rotateRays { 
+            0% { transform: rotate(0deg) translateZ(0); } 
+            100% { transform: rotate(360deg) translateZ(0); } 
+        }
 
         .film-grain-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -34,213 +38,212 @@
             position: relative; width: 420px; height: 420px;
             display: flex; justify-content: center; align-items: center;
             transform-style: preserve-3d;
-            animation: floatObj 8s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+            animation: floatObj 8s ease-in-out infinite alternate;
             cursor: pointer;
         }
 
-        .orbit { position: absolute; border-radius: 50%; pointer-events: none; will-change: transform; }
+        .orbit { position: absolute; border-radius: 50%; pointer-events: none; }
         
         .orbit-1 {
             width: 108%; height: 108%;
             border-top: 3px solid #ff1493; border-bottom: 3px solid #00ffff;
             border-left: 3px solid transparent; border-right: 3px solid transparent;
-            box-shadow: 0 0 20px rgba(255,20,147,0.6), inset 0 0 15px rgba(0,255,255,0.4);
+            box-shadow: 0 0 15px rgba(255,20,147,0.4);
             animation: spinFast 6s linear infinite;
         }
         .orbit-2 {
             width: 122%; height: 122%;
-            border: 2px dashed rgba(255,255,255,0.5); border-left: 2px solid #ff69b4;
-            animation: spinReverse 20s linear infinite; opacity: 0.8;
+            border: 2px dashed rgba(255,255,255,0.3); border-left: 2px solid #ff69b4;
+            animation: spinReverse 20s linear infinite;
         }
         .orbit-3 {
             width: 140%; height: 140%;
-            border-top: 1px solid rgba(0, 255, 255, 0.6); border-bottom: 1px solid rgba(255, 20, 147, 0.6);
+            border-top: 1px solid rgba(0, 255, 255, 0.4); border-bottom: 1px solid rgba(255, 20, 147, 0.4);
             border-left: 1px solid transparent; border-right: 1px solid transparent;
-            animation: spinSlow 30s linear infinite; filter: drop-shadow(0 0 10px #fff);
+            animation: spinSlow 30s linear infinite;
         }
 
-        @keyframes spinFast { 0% { transform: rotateZ(0deg) rotateX(15deg); } 100% { transform: rotateZ(360deg) rotateX(15deg); } }
-        @keyframes spinReverse { 0% { transform: rotateZ(360deg) rotateY(20deg); } 100% { transform: rotateZ(0deg) rotateY(20deg); } }
-        @keyframes spinSlow { 0% { transform: rotateZ(0deg); } 100% { transform: rotateZ(360deg); } }
-        @keyframes floatObj { 0% { transform: translateY(-25px) rotateX(5deg); } 100% { transform: translateY(25px) rotateX(-5deg); } }
+        /* Sử dụng translateZ(0) để ép GPU xử lý xoay */
+        @keyframes spinFast { 0% { transform: rotateZ(0deg) rotateX(15deg) translateZ(0); } 100% { transform: rotateZ(360deg) rotateX(15deg) translateZ(0); } }
+        @keyframes spinReverse { 0% { transform: rotateZ(360deg) rotateY(20deg) translateZ(0); } 100% { transform: rotateZ(0deg) rotateY(20deg) translateZ(0); } }
+        @keyframes spinSlow { 0% { transform: rotateZ(0deg) translateZ(0); } 100% { transform: rotateZ(360deg) translateZ(0); } }
+        @keyframes floatObj { 0% { transform: translate3d(0, -25px, 0) rotateX(5deg); } 100% { transform: translate3d(0, 25px, 0) rotateX(-5deg); } }
 
-        /* TĂNG TỐC ĐỘ XOAY KHI CHUYỂN CẢNH */
-        .scene.is-exiting .orbit-1 { animation: spinFast 0.5s linear infinite; border-width: 8px; box-shadow: 0 0 50px #fff; }
+        .scene.is-exiting .orbit-1 { animation: spinFast 0.5s linear infinite; border-width: 5px; box-shadow: 0 0 30px rgba(255,255,255,0.5); }
         .scene.is-exiting .orbit-2 { animation: spinReverse 1s linear infinite; border-color: #00ffff; }
 
         .circle-container {
             width: 100%; height: 100%; border-radius: 50%; overflow: hidden;
             border: 3px solid rgba(255,255,255,0.9);
-            box-shadow: 0 0 60px rgba(255,20,147,0.7), inset 0 0 40px rgba(0,0,0,0.5);
-            position: relative; z-index: 10; transition: all 0.5s ease;
+            box-shadow: 0 0 40px rgba(255,20,147,0.5);
+            position: relative; z-index: 10; transition: transform 0.5s ease;
+            backface-visibility: hidden;
         }
-        .circle-wrapper:hover .circle-container {
-            transform: scale(1.08); box-shadow: 0 0 120px #ff69b4, 0 0 50px #00ffff; border-color: #fff;
-        }
-        .circle-container img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.05); will-change: transform; }
+        .circle-wrapper:hover .circle-container { transform: scale3d(1.08, 1.08, 1); }
+        .circle-container img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.05); }
         .scene.active .circle-container img { animation: kenBurnsEpic 25s ease-in-out infinite alternate; }
-        @keyframes kenBurnsEpic { 0% { transform: scale(1.05) translate3d(0,0,0); } 100% { transform: scale(1.3) translate3d(-3%, 3%, 0); } }
+        @keyframes kenBurnsEpic { 
+            0% { transform: scale3d(1.05, 1.05, 1) translate3d(0,0,0); } 
+            100% { transform: scale3d(1.25, 1.25, 1) translate3d(-2%, 2%, 0); } 
+        }
 
-        /* ================= HỆ THỐNG CẢNH ================= */
+        /* ================= HỆ THỐNG CẢNH (BỎ FILTER BLUR GÂY LAG) ================= */
         .scene {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transform-style: preserve-3d; z-index: 1;
-            will-change: transform, opacity, filter;
+            will-change: transform, opacity;
         }
         .scene.active { opacity: 1; pointer-events: auto; z-index: 10; }
 
-        /* ================= 5 HIỆU ỨNG 6 GIÂY (6000ms) ================= */
-        
-        /* 1. BLACK HOLE (Hố Đen Hút Trọng Lực) */
+        /* 1. BLACK HOLE */
         .scene.out-1 { animation: bhOut 6s cubic-bezier(0.7, 0, 0.3, 1) forwards; z-index: 20; }
         .scene.in-1  { animation: bhIn 6s cubic-bezier(0.2, 1, 0.3, 1) forwards; }
         @keyframes bhOut {
-            0% { transform: scale(1) rotate(0deg); filter: blur(0); opacity: 1; }
-            30% { transform: scale(0.6) rotate(180deg); filter: blur(2px) brightness(2); }
-            50% { transform: scale(0) rotate(1080deg); filter: blur(20px) brightness(5); opacity: 0; }
+            0% { transform: scale3d(1,1,1) rotate(0deg); opacity: 1; }
+            50% { transform: scale3d(0,0,1) rotate(1080deg); opacity: 0; }
             100% { opacity: 0; }
         }
         @keyframes bhIn {
-            0% { opacity: 0; transform: scale(0) rotate(-1080deg); }
-            50% { opacity: 0; transform: scale(0) rotate(-1080deg); filter: brightness(5) blur(20px); }
-            75% { opacity: 1; transform: scale(1.2) rotate(-180deg); filter: brightness(2) blur(5px); }
-            100% { opacity: 1; transform: scale(1) rotate(0deg); filter: brightness(1) blur(0); }
+            0%, 50% { opacity: 0; transform: scale3d(0,0,1) rotate(-1080deg); }
+            100% { opacity: 1; transform: scale3d(1,1,1) rotate(0deg); }
         }
 
-        /* 2. HYPERSPACE (Nhảy Bước Không Gian) */
+        /* 2. HYPERSPACE */
         .scene.out-2 { animation: hyperOut 6s cubic-bezier(0.5, 0, 0, 1) forwards; z-index: 20; }
         .scene.in-2  { animation: hyperIn 6s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
         @keyframes hyperOut {
-            0% { transform: translateZ(0) scale(1); opacity: 1; filter: blur(0); }
-            20% { transform: translateZ(-800px) scale(0.8); filter: blur(2px); }
-            45% { transform: translateZ(1500px) scale(4); filter: blur(30px) brightness(3); opacity: 0; }
+            0% { transform: translate3d(0,0,0) scale3d(1,1,1); opacity: 1; }
+            45% { transform: translate3d(0,0,1000px) scale3d(3,3,3); opacity: 0; }
             100% { opacity: 0; }
         }
         @keyframes hyperIn {
-            0%, 45% { transform: translateZ(-2000px) scale(0.1); filter: blur(40px) brightness(4); opacity: 0; }
-            70% { transform: translateZ(100px) scale(1.1); filter: blur(4px) brightness(1.5); opacity: 1; }
-            100% { transform: translateZ(0) scale(1); filter: blur(0) brightness(1); opacity: 1; }
+            0%, 45% { transform: translate3d(0,0,-1500px) scale3d(0.1,0.1,1); opacity: 0; }
+            100% { transform: translate3d(0,0,0) scale3d(1,1,1); opacity: 1; }
         }
 
-        /* 3. NEBULA PULSE (Bùng Nổ Tinh Vân) */
+        /* 3. NEBULA PULSE */
         .scene.out-3 { animation: nebOut 6s ease-in-out forwards; z-index: 20; }
         .scene.in-3  { animation: nebIn 6s ease-in-out forwards; }
         @keyframes nebOut {
-            0% { filter: hue-rotate(0deg) brightness(1) blur(0); transform: scale(1); opacity: 1; }
-            50% { filter: hue-rotate(180deg) brightness(5) blur(20px) drop-shadow(0 0 100px #fff); transform: scale(1.5); opacity: 0; }
+            0% { transform: scale3d(1,1,1); opacity: 1; }
+            50% { transform: scale3d(1.8,1.8,1); opacity: 0; }
             100% { opacity: 0; }
         }
         @keyframes nebIn {
-            0%, 45% { filter: hue-rotate(-180deg) brightness(5) blur(20px); transform: scale(0.5); opacity: 0; }
-            100% { filter: hue-rotate(0deg) brightness(1) blur(0); transform: scale(1); opacity: 1; }
+            0%, 45% { transform: scale3d(0.5,0.5,1); opacity: 0; }
+            100% { transform: scale3d(1,1,1); opacity: 1; }
         }
 
-        /* 4. DIMENSION SHATTER (Cắt Lớp Không Gian) */
+        /* 4. DIMENSION SHATTER */
         .scene.out-4 { animation: shatOut 6s cubic-bezier(0.8, 0, 0.2, 1) forwards; z-index: 20; }
         .scene.in-4  { animation: shatIn 6s cubic-bezier(0.2, 1, 0.3, 1) forwards; }
         @keyframes shatOut {
-            0% { transform: skewX(0deg) scaleX(1); filter: blur(0); opacity: 1; }
-            20% { transform: skewX(30deg) scaleX(1.2); filter: drop-shadow(20px 0 0 cyan) drop-shadow(-20px 0 0 red); }
-            50% { transform: skewX(-60deg) scaleX(4); filter: blur(20px) brightness(3); opacity: 0; }
+            0% { transform: skewX(0deg) scale3d(1,1,1); opacity: 1; }
+            50% { transform: skewX(-60deg) scale3d(3,3,1); opacity: 0; }
             100% { opacity: 0; }
         }
         @keyframes shatIn {
-            0%, 45% { transform: skewX(60deg) scaleX(4); filter: blur(20px) brightness(3); opacity: 0; }
-            75% { transform: skewX(-15deg) scaleX(1.1); filter: drop-shadow(10px 0 0 red) drop-shadow(-10px 0 0 cyan); opacity: 1; }
-            100% { transform: skewX(0deg) scaleX(1); filter: blur(0) drop-shadow(0 0 0 transparent); opacity: 1; }
+            0%, 45% { transform: skewX(60deg) scale3d(3,3,1); opacity: 0; }
+            100% { transform: skewX(0deg) scale3d(1,1,1); opacity: 1; }
         }
 
-        /* 5. SOLAR ECLIPSE (Nhật Thực Toàn Phần) */
+        /* 5. SOLAR ECLIPSE */
         .scene.out-5 { animation: eclOut 6s ease forwards; z-index: 20; }
         .scene.in-5  { animation: eclIn 6s ease forwards; }
         @keyframes eclOut {
-            0% { filter: brightness(1); opacity: 1; transform: scale(1); }
-            30% { filter: brightness(0) drop-shadow(0 0 100px #fff); transform: scale(0.8); }
-            50% { filter: brightness(0); opacity: 0; transform: scale(0); }
+            0% { transform: scale3d(1,1,1); opacity: 1; }
+            50% { transform: scale3d(0.3,0.3,1); opacity: 0; }
             100% { opacity: 0; }
         }
         @keyframes eclIn {
-            0%, 45% { filter: brightness(0); opacity: 0; transform: scale(0); }
-            75% { filter: brightness(0) drop-shadow(0 0 100px #00ffff); opacity: 1; transform: scale(0.9); }
-            100% { filter: brightness(1); opacity: 1; transform: scale(1); }
+            0%, 45% { transform: scale3d(0.3,0.3,1); opacity: 0; }
+            100% { transform: scale3d(1,1,1); opacity: 1; }
         }
 
-
-        /* ================= VỤ NỔ SÓNG XUNG KÍCH Ở GIÂY THỨ 3 ================= */
+        /* ================= VỤ NỔ SÓNG XUNG KÍCH BẰNG SCALE (KHÔNG LÀM THAY ĐỔI LAYOUT) ================= */
         .shockwave-container {
-            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 1px; height: 1px; z-index: 99; pointer-events: none;
+            position: fixed; top: 50%; left: 50%; width: 100px; height: 100px; 
+            transform: translate(-50%, -50%); z-index: 99; pointer-events: none;
         }
         .shock-ring {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
             border-radius: 50%; opacity: 0; will-change: transform, opacity;
         }
-        .shock-ring.inner { border: 20px solid rgba(255,255,255,1); box-shadow: 0 0 80px #ff1493; }
-        .shock-ring.outer { border: 5px solid rgba(0,255,255,0.9); box-shadow: inset 0 0 50px #00ffff; }
+        .shock-ring.inner { border: 15px solid #fff; }
+        .shock-ring.outer { border: 5px solid #00ffff; }
         
         .explode .shock-ring.inner { animation: blastInner 1.5s cubic-bezier(0.1, 0.8, 0.2, 1) forwards; }
         .explode .shock-ring.outer { animation: blastOuter 2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards; }
         
-        @keyframes blastInner { 0% { width: 0; height: 0; opacity: 1; border-width: 50px; } 100% { width: 150vw; height: 150vw; opacity: 0; border-width: 0px; } }
-        @keyframes blastOuter { 0% { width: 50px; height: 50px; opacity: 1; border-width: 15px; } 100% { width: 200vw; height: 200vw; opacity: 0; border-width: 1px; } }
-
-        /* ================= ÉP KHUNG ĐIỆN ẢNH (6s SYNC) ================= */
-        .letterbox {
-            position: fixed; left: 0; width: 100%; height: 7vh; background: #000; z-index: 1000; pointer-events: none; will-change: height;
+        @keyframes blastInner { 
+            0% { transform: scale3d(0.1, 0.1, 1); opacity: 1; } 
+            100% { transform: scale3d(15, 15, 1); opacity: 0; } 
         }
-        .letterbox.top { top: 0; box-shadow: 0 5px 30px rgba(0,0,0,0.9); }
-        .letterbox.bottom { bottom: 0; box-shadow: 0 -5px 30px rgba(0,0,0,0.9); }
+        @keyframes blastOuter { 
+            0% { transform: scale3d(0.5, 0.5, 1); opacity: 1; } 
+            100% { transform: scale3d(20, 20, 1); opacity: 0; } 
+        }
+
+        /* ================= ÉP KHUNG BẰNG SCALE (THAY VÌ ANIMATE HEIGHT GÂY LAG) ================= */
+        .letterbox {
+            position: fixed; left: 0; width: 100%; height: 20vh; background: #000; z-index: 1000; 
+            pointer-events: none; transform: scaleY(0.35); will-change: transform;
+        }
+        .letterbox.top { top: 0; transform-origin: top; box-shadow: 0 5px 20px rgba(0,0,0,0.8); }
+        .letterbox.bottom { bottom: 0; transform-origin: bottom; box-shadow: 0 -5px 20px rgba(0,0,0,0.8); }
         
         .cinematic-6s-squeeze { animation: squeeze6s 6s ease-in-out forwards; }
         @keyframes squeeze6s {
-            0% { height: 7vh; }
-            25% { height: 20vh; }  /* Ép sâu cực đại vào lúc cao trào */
-            75% { height: 20vh; }  /* Giữ nguyên khung ép */
-            100% { height: 7vh; }  /* Nhả ra bình thường */
+            0% { transform: scaleY(0.35); }
+            25%, 75% { transform: scaleY(1); } /* Ép mượt mà bằng card đồ họa */
+            100% { transform: scaleY(0.35); }
         }
 
         .light-leak {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, transparent 20%, rgba(255,255,255,0.9) 50%, transparent 80%);
+            background: linear-gradient(45deg, transparent 20%, rgba(255,255,255,0.7) 50%, transparent 80%);
             pointer-events: none; z-index: 999; opacity: 0; mix-blend-mode: overlay;
         }
-        .light-leak.flash { animation: bladeSweep 2s ease-in-out forwards; animation-delay: 2s; } /* Quét đúng giây thứ 2 */
+        .light-leak.flash { animation: bladeSweep 2s ease-in-out forwards; animation-delay: 2s; }
         @keyframes bladeSweep {
-            0% { transform: translateX(-100%) scaleX(3) skewX(-45deg); opacity: 0; }
+            0% { transform: translate3d(-100%, 0, 0) scaleX(3) skewX(-45deg); opacity: 0; }
             50% { opacity: 1; }
-            100% { transform: translateX(100%) scaleX(3) skewX(-45deg); opacity: 0; }
+            100% { transform: translate3d(100%, 0, 0) scaleX(3) skewX(-45deg); opacity: 0; }
         }
 
-        /* ================= HỆ THỐNG HẠT BACKGROUND ================= */
-        .shooting-star {
-            position: absolute; height: 3px; background: linear-gradient(90deg, #fff, rgba(0,255,255,0.8), transparent);
-            border-radius: 50%; pointer-events: none; z-index: 0; filter: drop-shadow(0 0 10px #00ffff); will-change: transform, opacity;
-        }
-        .shooting-star::after {
-            content: ''; position: absolute; top: -4px; left: 0; width: 10px; height: 10px;
-            background: #fff; border-radius: 50%; box-shadow: 0 0 20px 8px #ff1493;
-        }
-        @keyframes starShoot {
-            0% { transform: translate3d(0,0,0) rotate(35deg) scale(0.5); opacity: 0; }
-            10% { opacity: 1; transform: translate3d(-10vw, 10vh, 0) rotate(35deg) scale(1.5); }
-            100% { transform: translate3d(-150vw, 150vh, 0) rotate(35deg) scale(0.2); opacity: 0; }
-        }
+        /* ================= HỆ THỐNG HẠT BỤI SAO & SAO BĂNG (CHỈ DÙNG CSS, KHÔNG TẠO/XÓA BẰNG JS) ================= */
+        #particles-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 2; overflow: hidden; }
+        
         .bokeh-particle {
-            position: absolute; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,105,180,0.2) 60%, transparent 100%);
-            pointer-events: none; z-index: 2; mix-blend-mode: screen; will-change: transform, opacity;
+            position: absolute; border-radius: 50%; background: #fff; opacity: 0;
+            box-shadow: 0 0 10px rgba(255,105,180,0.5);
+            animation: bokehFloat linear infinite; will-change: transform, opacity;
         }
         @keyframes bokehFloat {
-            0% { transform: translate3d(0, 110vh, 0) scale(0.1); opacity: 0; }
-            30% { opacity: 1; box-shadow: 0 0 30px #ff69b4; }
-            70% { opacity: 0.6; }
-            100% { transform: translate3d(150px, -20vh, 200px) scale(2.5); opacity: 0; }
+            0% { transform: translate3d(0, 110vh, 0) scale(0.5); opacity: 0; }
+            30% { opacity: 0.6; }
+            100% { transform: translate3d(50px, -20vh, 0) scale(2); opacity: 0; }
+        }
+
+        .shooting-star {
+            position: absolute; height: 2px; width: 150px;
+            background: linear-gradient(90deg, #fff, transparent);
+            border-radius: 50%; opacity: 0; filter: drop-shadow(0 0 5px #00ffff);
+            animation: starShoot linear infinite;
+        }
+        @keyframes starShoot {
+            0% { transform: translate3d(100vw, -20vh, 0) rotate(35deg); opacity: 0; }
+            10% { opacity: 1; transform: translate3d(50vw, 30vh, 0) rotate(35deg); }
+            100% { transform: translate3d(-50vw, 130vh, 0) rotate(35deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
     <div class="ambient-rays"></div>
     <div class="film-grain-bg"></div>
+    
+    <div id="particles-container"></div>
 
     <div class="letterbox top" id="lb-top"></div>
     <div class="letterbox bottom" id="lb-bottom"></div>
@@ -291,6 +294,7 @@
     </div>
 
     <script>
+        // --- 1. KHỞI TẠO ÂM THANH ---
         const music = document.getElementById('bg-music');
         let musicPlayed = false;
         let isTransitioning = false;
@@ -302,7 +306,32 @@
         const unlockAudio = () => { if (!musicPlayed) { music.play(); musicPlayed = true; } document.removeEventListener('click', unlockAudio); };
         document.addEventListener('click', unlockAudio);
 
-        // HÀM ĐIỀU KHIỂN CHUỖI 6 GIÂY
+        // --- 2. TẠO POOL HẠT BỤI SAO & SAO BĂNG (CHỈ CHẠY 1 LẦN DUY NHẤT LÚC LOAD TRANG) ---
+        // Kỹ thuật này giúp loại bỏ 100% hiện tượng giật lag do rác bộ nhớ (Garbage Collection)
+        const particleContainer = document.getElementById('particles-container');
+        
+        // Tạo 25 hạt bụi sáng
+        for (let i = 0; i < 25; i++) {
+            let bokeh = document.createElement('div');
+            bokeh.className = 'bokeh-particle';
+            bokeh.style.width = bokeh.style.height = (Math.random() * 15 + 5) + 'px';
+            bokeh.style.left = Math.random() * 100 + 'vw';
+            bokeh.style.animationDuration = (Math.random() * 5 + 5) + 's';
+            bokeh.style.animationDelay = '-' + (Math.random() * 10) + 's'; // Bắt đầu ngẫu nhiên để không bị tụ lại 1 cục
+            particleContainer.appendChild(bokeh);
+        }
+
+        // Tạo 3 sao băng xoay vòng
+        for (let j = 0; j < 3; j++) {
+            let star = document.createElement('div');
+            star.className = 'shooting-star';
+            star.style.top = (Math.random() * 50) + 'vh';
+            star.style.animationDuration = (Math.random() * 2 + 3) + 's'; // 3-5s bay 1 lần
+            star.style.animationDelay = '-' + (Math.random() * 5) + 's';
+            particleContainer.appendChild(star);
+        }
+
+        // --- 3. LOGIC CHUYỂN CẢNH ---
         function trigger6sEpicTransition(currentIdx) {
             if (isTransitioning) return;
             isTransitioning = true; // KHÓA CLICK ĐÚNG 6 GIÂY
@@ -318,30 +347,30 @@
             const lightLeak = document.getElementById('light-leak');
             const shockwave = document.getElementById('shockwave');
 
-            // 1. Kích hoạt hiệu ứng dải đen điện ảnh 6s
+            // 1. Dải đen ép khung (chạy mượt nhờ transform: scaleY)
             lbTop.classList.add('cinematic-6s-squeeze');
             lbBottom.classList.add('cinematic-6s-squeeze');
             
-            // 2. Kích hoạt ánh sáng quét mặt kính
+            // 2. Tia sáng quét mượt mà
             lightLeak.classList.remove('flash');
             void lightLeak.offsetWidth; 
             lightLeak.classList.add('flash');
 
-            // 3. Tăng tốc vòng xoay cảnh cũ
+            // 3. Vòng tròn tăng tốc
             currentScene.classList.add('is-exiting');
 
-            // 4. Gắn class Animation 6s tương ứng (từ 1 đến 5)
+            // 4. Bật Animation (chỉ dùng Opacity và Transform)
             currentScene.classList.add(`out-${currentIdx}`);
             nextScene.classList.add('active', `in-${currentIdx}`);
 
-            // 5. Căn đúng giữa chu kỳ (Giây thứ 3) -> BÙNG NỔ SÓNG XUNG KÍCH
+            // 5. Nổ sóng xung kích (Scale lên gấp 20 lần thay vì thay đổi Width/Height)
             setTimeout(() => {
                 shockwave.classList.remove('explode');
                 void shockwave.offsetWidth; 
                 shockwave.classList.add('explode');
-            }, 2800); // Kích nổ sớm 200ms để bù độ trễ thị giác
+            }, 2800); 
 
-            // 6. Dọn dẹp tất cả sau khi kết thúc 6 giây (6000ms)
+            // 6. Dọn dẹp Class để hoàn thành vòng lặp
             setTimeout(() => {
                 lbTop.classList.remove('cinematic-6s-squeeze');
                 lbBottom.classList.remove('cinematic-6s-squeeze');
@@ -350,41 +379,9 @@
                 currentScene.classList.remove('active', 'is-exiting', `out-${currentIdx}`);
                 nextScene.classList.remove(`in-${currentIdx}`);
                 
-                isTransitioning = false; // MỞ KHÓA CLICK
+                isTransitioning = false; // XONG
             }, 6000); 
         }
-
-        // TỐI ƯU HIỆU NĂNG CHO HỆ THỐNG HẠT
-        const MAX_PARTICLES = 30;
-
-        function spawnCinematicBokeh() {
-            if (document.querySelectorAll('.bokeh-particle').length >= MAX_PARTICLES) return;
-            const bokeh = document.createElement('div');
-            bokeh.classList.add('bokeh-particle');
-            const size = Math.random() * 25 + 5; 
-            bokeh.style.width = size + 'px'; bokeh.style.height = size + 'px';
-            bokeh.style.left = Math.random() * 100 + 'vw';
-            const duration = Math.random() * 4 + 4;
-            bokeh.style.animation = `bokehFloat ${duration}s cubic-bezier(0.25, 1, 0.5, 1) forwards`;
-            document.body.appendChild(bokeh);
-            setTimeout(() => bokeh.remove(), duration * 1000);
-        }
-        setInterval(spawnCinematicBokeh, 300); 
-
-        function spawnShootingStar() {
-            if (Math.random() > 0.5 && document.querySelectorAll('.shooting-star').length < 2) {
-                const star = document.createElement('div');
-                star.classList.add('shooting-star');
-                star.style.width = (Math.random() * 250 + 100) + 'px';
-                star.style.top = (Math.random() * 60 - 20) + 'vh';
-                star.style.left = (Math.random() * 30 + 80) + 'vw';
-                const duration = Math.random() * 1.2 + 0.8; 
-                star.style.animation = `starShoot ${duration}s cubic-bezier(0.4, 0, 0.2, 1) forwards`;
-                document.body.appendChild(star);
-                setTimeout(() => star.remove(), duration * 1000);
-            }
-        }
-        setInterval(spawnShootingStar, 1200);
     </script>
 </body>
 </html>
