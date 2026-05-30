@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thước Phim Kỷ Niệm</title>
+    <title>Gift 1/6 for Mylynh</title>
     <style>
         /* Không gian tổng thể */
         body {
@@ -26,10 +26,11 @@
             animation: rotateRays 40s linear infinite;
             z-index: -2;
             pointer-events: none;
+            will-change: transform; /* Tối ưu GPU */
         }
         @keyframes rotateRays {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% { transform: rotate(0deg) translateZ(0); }
+            100% { transform: rotate(360deg) translateZ(0); }
         }
 
         /* Lớp nền phim */
@@ -38,6 +39,7 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at center, rgba(30,0,15,0.8) 0%, rgba(5,1,4,1) 100%);
             z-index: -1;
+            pointer-events: none;
         }
 
         /* ----- MƯA SAO BĂNG (SHOOTING STARS) ----- */
@@ -50,9 +52,8 @@
             pointer-events: none;
             z-index: 0;
             filter: drop-shadow(0 0 6px #fff);
-            will-change: transform, opacity;
+            will-change: transform, opacity; /* Tối ưu GPU */
         }
-        /* Đầu sao băng phát sáng */
         .shooting-star::before {
             content: '';
             position: absolute;
@@ -63,16 +64,16 @@
             box-shadow: 0 0 15px 5px rgba(255, 182, 193, 0.8);
         }
         @keyframes starShoot {
-            0% { transform: translate(0, 0) rotate(45deg); opacity: 0; }
+            0% { transform: translate3d(0, 0, 0) rotate(45deg); opacity: 0; }
             10% { opacity: 1; }
-            100% { transform: translate(-100vw, 100vh) rotate(45deg); opacity: 0; }
+            100% { transform: translate3d(-100vw, 100vh, 0) rotate(45deg); opacity: 0; }
         }
 
         /* ----- SÓNG XUNG KÍCH ÁNH SÁNG (SHOCKWAVE) ----- */
         .shockwave {
             position: fixed;
             top: 50%; left: 50%;
-            transform: translate(-50%, -50%) scale(0);
+            transform: translate3d(-50%, -50%, 0) scale(0);
             width: 20px; height: 20px;
             border: 2px solid rgba(255, 105, 180, 0.8);
             border-radius: 50%;
@@ -80,13 +81,14 @@
             pointer-events: none;
             z-index: 5;
             opacity: 0;
+            will-change: transform, opacity, border-width;
         }
         .shockwave.explode {
             animation: shockwaveBurst 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
         }
         @keyframes shockwaveBurst {
-            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 10px; }
-            100% { transform: translate(-50%, -50%) scale(150); opacity: 0; border-width: 1px; }
+            0% { transform: translate3d(-50%, -50%, 0) scale(0); opacity: 1; border-width: 10px; }
+            100% { transform: translate3d(-50%, -50%, 0) scale(150); opacity: 0; border-width: 1px; }
         }
 
         /* ----- KHUNG PHÌM (LETTERBOX) VÀ LIGHT LEAK ----- */
@@ -94,6 +96,7 @@
             position: fixed; left: 0; width: 100%; height: 5vh;
             background: #000; z-index: 1000; pointer-events: none;
             transition: height 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+            will-change: height;
         }
         .letterbox.top { top: 0; }
         .letterbox.bottom { bottom: 0; }
@@ -103,6 +106,7 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: radial-gradient(circle at 50% 50%, rgba(255, 138, 174, 0.9) 0%, rgba(254, 200, 154, 0.4) 40%, transparent 70%);
             pointer-events: none; z-index: 999; opacity: 0; mix-blend-mode: screen;
+            will-change: filter, opacity;
         }
         .light-leak.flash {
             animation: lensFlareStrike 1.4s cubic-bezier(0.42, 0, 0.58, 1) forwards;
@@ -119,6 +123,7 @@
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none; transform-style: preserve-3d; z-index: 1;
+            will-change: transform, opacity, filter; /* Tối ưu GPU */
         }
         .scene.active { opacity: 1; pointer-events: auto; z-index: 10; }
         
@@ -126,50 +131,53 @@
         .scene.movie-in { animation: cameraZoomIn 0.9s cubic-bezier(0.24, 1, 0.32, 1) forwards; }
 
         @keyframes cameraPanOut {
-            0% { transform: scale(1) translateZ(0) rotateX(0deg); filter: blur(0px) brightness(1); opacity: 1; }
-            100% { transform: scale(1.6) translateZ(300px) rotateY(10deg); filter: blur(25px) brightness(2); opacity: 0; }
+            0% { transform: scale(1) translate3d(0,0,0) rotateX(0deg); filter: blur(0px) brightness(1); opacity: 1; }
+            100% { transform: scale(1.6) translate3d(0, 0, 300px) rotateY(10deg); filter: blur(25px) brightness(2); opacity: 0; }
         }
         @keyframes cameraZoomIn {
-            0% { transform: scale(0.4) translateZ(-500px) rotateY(-10deg); filter: blur(30px) brightness(0.2); opacity: 0; }
-            100% { transform: scale(1) translateZ(0) rotateY(0deg); filter: blur(0px) brightness(1); opacity: 1; }
+            0% { transform: scale(0.4) translate3d(0, 0, -500px) rotateY(-10deg); filter: blur(30px) brightness(0.2); opacity: 0; }
+            100% { transform: scale(1) translate3d(0,0,0) rotateY(0deg); filter: blur(0px) brightness(1); opacity: 1; }
         }
 
         /* ----- Ô TRÒN ẢNH VÀ CÚ LIA MÁY KEN BURNS ----- */
         .circle-container {
-            width: 400px; /* Tăng kích thước ảnh cho đã mắt */
+            width: 400px;
             height: 400px;
             border-radius: 50%;
             overflow: hidden;
             border: 2px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 100px rgba(255, 77, 109, 0.4), inset 0 0 50px rgba(255,255,255,0.2);
+            box-shadow: 0 0 80px rgba(255, 77, 109, 0.4), inset 0 0 50px rgba(255,255,255,0.2);
             cursor: pointer;
             position: relative;
             transform-style: preserve-3d;
             animation: softFloating 6s ease-in-out infinite alternate;
-            transition: all 0.5s;
+            transition: box-shadow 0.5s, border-color 0.5s, transform 0.5s;
+            will-change: transform;
         }
 
         .circle-container:hover {
-            box-shadow: 0 0 150px rgba(255, 77, 109, 0.8), inset 0 0 80px rgba(255,255,255,0.5);
+            box-shadow: 0 0 120px rgba(255, 77, 109, 0.8), inset 0 0 80px rgba(255,255,255,0.5);
             border-color: rgba(255, 255, 255, 1);
-            transform: scale(1.05);
+            transform: scale(1.05) translateZ(0); /* Bắt GPU xử lý Hover */
         }
 
         @keyframes softFloating {
-            0% { transform: translateY(-15px) rotate(2deg); }
-            100% { transform: translateY(15px) rotate(-2deg); }
+            0% { transform: translate3d(0, -15px, 0) rotate(2deg); }
+            100% { transform: translate3d(0, 15px, 0) rotate(-2deg); }
         }
 
         .circle-container img {
-            width: 100%; height: 100%; object-fit: cover; transform: scale(1.05);
+            width: 100%; height: 100%; object-fit: cover; 
+            transform: scale(1.05) translateZ(0);
+            will-change: transform;
         }
         .scene.active .circle-container img {
             animation: kenBurnsCamera 15s ease-in-out infinite alternate;
         }
         @keyframes kenBurnsCamera {
-            0% { transform: scale(1.05) translate(0, 0) rotate(0deg); }
-            50% { transform: scale(1.25) translate(-3%, 2%) rotate(2deg); }
-            100% { transform: scale(1.15) translate(2%, -3%) rotate(-1deg); }
+            0% { transform: scale(1.05) translate3d(0, 0, 0) rotate(0deg); }
+            50% { transform: scale(1.25) translate3d(-3%, 2%, 0) rotate(2deg); }
+            100% { transform: scale(1.15) translate3d(2%, -3%, 0) rotate(-1deg); }
         }
 
         /* ----- HẠT SÁNG BOKEHS ĐIỆN ẢNH ----- */
@@ -177,12 +185,13 @@
             position: absolute; border-radius: 50%;
             background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,105,180,0) 70%);
             pointer-events: none; z-index: 2; mix-blend-mode: screen;
+            will-change: transform, opacity; /* Chống giật lag khung hình */
         }
         @keyframes bokehFloat {
-            0% { transform: translateY(100vh) translateX(0) scale(0.5); opacity: 0; }
+            0% { transform: translate3d(0, 100vh, 0) scale(0.5); opacity: 0; }
             20% { opacity: 0.8; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
             80% { opacity: 0.5; }
-            100% { transform: translateY(-20vh) translateX(100px) scale(2); opacity: 0; }
+            100% { transform: translate3d(100px, -20vh, 0) scale(2); opacity: 0; }
         }
     </style>
 </head>
@@ -194,10 +203,9 @@
     <div class="letterbox bottom" id="lb-bottom"></div>
 
     <div class="shockwave" id="shockwave"></div>
-
     <div class="light-leak" id="light-leak"></div>
 
-    <audio id="bg-music" loop>
+    <audio id="bg-music" loop autoplay preload="auto">
         <source src="music.mp3" type="audio/mpeg">
     </audio>
 
@@ -232,19 +240,42 @@
     </div>
 
     <script>
-        let musicPlayed = false;
         const music = document.getElementById('bg-music');
+        let musicPlayed = false;
         let isTransitioning = false;
+
+        // Xử lý tự động phát nhạc mạnh mẽ hơn
+        function initAudio() {
+            if (!musicPlayed) {
+                music.play().then(() => {
+                    musicPlayed = true;
+                }).catch(err => {
+                    console.log("Trình duyệt chặn Auto-play, đợi tương tác người dùng.");
+                });
+            }
+        }
+
+        // Kích hoạt ngay khi DOM tải xong
+        window.addEventListener('DOMContentLoaded', initAudio);
+
+        // Lắng nghe tương tác ĐẦU TIÊN ở bất kỳ đâu trên màn hình để bật nhạc (nếu bị chặn)
+        const unlockAudio = () => {
+            if (!musicPlayed) {
+                music.play();
+                musicPlayed = true;
+            }
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        };
+        document.addEventListener('click', unlockAudio);
+        document.addEventListener('touchstart', unlockAudio);
 
         function playCinematicTransition(currentIdx) {
             if (isTransitioning) return;
             isTransitioning = true;
-
-            // Bật nhạc
-            if (!musicPlayed) {
-                music.play().catch(err => console.log("Lỗi phát nhạc:", err));
-                musicPlayed = true;
-            }
+            
+            // Đảm bảo nhạc chắc chắn chạy khi click chuyển cảnh
+            initAudio();
 
             const currentScene = document.getElementById('scene-' + currentIdx);
             let nextIdx = currentIdx + 1;
@@ -256,14 +287,12 @@
             const lightLeak = document.getElementById('light-leak');
             const shockwave = document.getElementById('shockwave');
 
-            // Kích hoạt các hiệu ứng toàn màn hình
             lbTop.classList.add('cinematic-squeeze');
             lbBottom.classList.add('cinematic-squeeze');
             lightLeak.classList.add('flash');
             
-            // Bùng nổ sóng xung kích
             shockwave.classList.remove('explode');
-            void shockwave.offsetWidth; // Trigger reflow để reset animation
+            void shockwave.offsetWidth; 
             shockwave.classList.add('explode');
 
             currentScene.classList.add('movie-out');
@@ -282,8 +311,14 @@
             }, 1000);
         }
 
+        // TỐI ƯU HIỆU NĂNG: Giới hạn số lượng thẻ div tạo ra
+        const MAX_PARTICLES = 25;
+
         // --- HẠT BỤI SAO & BOKEH ---
         function spawnCinematicBokeh() {
+            // Kiểm tra số lượng hạt đang tồn tại, nếu quá nhiều thì dừng để chống lag
+            if (document.querySelectorAll('.bokeh-particle').length >= MAX_PARTICLES) return;
+
             const bokeh = document.createElement('div');
             bokeh.classList.add('bokeh-particle');
             const size = Math.random() * 40 + 10;
@@ -296,20 +331,17 @@
             document.body.appendChild(bokeh);
             setTimeout(() => bokeh.remove(), duration * 1000);
         }
-        setInterval(spawnCinematicBokeh, 300); // Mật độ hạt dày hơn
+        setInterval(spawnCinematicBokeh, 400); // Tăng thời gian giãn cách nhẹ để CPU nghỉ
 
         // --- MƯA SAO BĂNG ---
         function spawnShootingStar() {
-            // Tỉ lệ xuất hiện sao băng (không phải lúc nào cũng có để tạo sự bất ngờ)
-            if (Math.random() > 0.6) {
+            if (Math.random() > 0.6 && document.querySelectorAll('.shooting-star').length < 2) {
                 const star = document.createElement('div');
                 star.classList.add('shooting-star');
                 
-                // Vị trí bắt đầu ngẫu nhiên ở nửa trên bên phải màn hình
                 star.style.top = (Math.random() * 50 - 20) + 'vh';
                 star.style.left = (Math.random() * 50 + 70) + 'vw';
                 
-                // Tốc độ lướt qua cực nhanh
                 const duration = Math.random() * 1.5 + 1;
                 star.style.animation = `starShoot ${duration}s linear forwards`;
                 
@@ -317,7 +349,7 @@
                 setTimeout(() => star.remove(), duration * 1000);
             }
         }
-        setInterval(spawnShootingStar, 2000); // Cứ 2s kiểm tra tung 1 sao băng
+        setInterval(spawnShootingStar, 2500);
     </script>
 </body>
 </html>
