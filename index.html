@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thước Phim Kỷ Niệm</title>
+    <style>
+        /* Không gian tổng thể */
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #050104; 
+            height: 100vh;
+            perspective: 2000px;
+        }
+
+        /* ----- HIỆU ỨNG TIA SÁNG XOAY (GOD RAYS) ----- */
+        .ambient-rays {
+            position: fixed;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(from 0deg, 
+                transparent 0deg, rgba(255,105,180,0.05) 45deg, 
+                transparent 90deg, rgba(135,206,235,0.05) 135deg, 
+                transparent 180deg, rgba(255,105,180,0.05) 225deg, 
+                transparent 270deg, rgba(135,206,235,0.05) 315deg, transparent 360deg);
+            animation: rotateRays 40s linear infinite;
+            z-index: -2;
+            pointer-events: none;
+        }
+        @keyframes rotateRays {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Lớp nền phim */
+        .film-grain-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(30,0,15,0.8) 0%, rgba(5,1,4,1) 100%);
+            z-index: -1;
+        }
+
+        /* ----- MƯA SAO BĂNG (SHOOTING STARS) ----- */
+        .shooting-star {
+            position: absolute;
+            width: 150px;
+            height: 2px;
+            background: linear-gradient(90deg, rgba(255,255,255,1), transparent);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            filter: drop-shadow(0 0 6px #fff);
+            will-change: transform, opacity;
+        }
+        /* Đầu sao băng phát sáng */
+        .shooting-star::before {
+            content: '';
+            position: absolute;
+            top: -3px; left: 0;
+            width: 8px; height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 15px 5px rgba(255, 182, 193, 0.8);
+        }
+        @keyframes starShoot {
+            0% { transform: translate(0, 0) rotate(45deg); opacity: 0; }
+            10% { opacity: 1; }
+            100% { transform: translate(-100vw, 100vh) rotate(45deg); opacity: 0; }
+        }
+
+        /* ----- SÓNG XUNG KÍCH ÁNH SÁNG (SHOCKWAVE) ----- */
+        .shockwave {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 20px; height: 20px;
+            border: 2px solid rgba(255, 105, 180, 0.8);
+            border-radius: 50%;
+            box-shadow: 0 0 40px 10px rgba(255, 105, 180, 0.4), inset 0 0 40px 10px rgba(255, 105, 180, 0.4);
+            pointer-events: none;
+            z-index: 5;
+            opacity: 0;
+        }
+        .shockwave.explode {
+            animation: shockwaveBurst 1.2s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+        }
+        @keyframes shockwaveBurst {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 10px; }
+            100% { transform: translate(-50%, -50%) scale(150); opacity: 0; border-width: 1px; }
+        }
+
+        /* ----- KHUNG PHÌM (LETTERBOX) VÀ LIGHT LEAK ----- */
+        .letterbox {
+            position: fixed; left: 0; width: 100%; height: 5vh;
+            background: #000; z-index: 1000; pointer-events: none;
+            transition: height 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+        }
+        .letterbox.top { top: 0; }
+        .letterbox.bottom { bottom: 0; }
+        .letterbox.cinematic-squeeze { height: 14vh; }
+
+        .light-leak {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(255, 138, 174, 0.9) 0%, rgba(254, 200, 154, 0.4) 40%, transparent 70%);
+            pointer-events: none; z-index: 999; opacity: 0; mix-blend-mode: screen;
+        }
+        .light-leak.flash {
+            animation: lensFlareStrike 1.4s cubic-bezier(0.42, 0, 0.58, 1) forwards;
+        }
+        @keyframes lensFlareStrike {
+            0% { opacity: 0; filter: scaleX(0.3) blur(20px); }
+            35% { opacity: 1; filter: scaleX(1.5) blur(5px); background-color: rgba(255, 255, 255, 0.5); }
+            65% { opacity: 0.8; filter: scaleX(1.2) blur(15px); }
+            100% { opacity: 0; filter: scaleX(1) blur(30px); }
+        }
+
+        /* ----- CẤU TRÚC CAMERA SCENE ----- */
+        .scene {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transform-style: preserve-3d; z-index: 1;
+        }
+        .scene.active { opacity: 1; pointer-events: auto; z-index: 10; }
+        
+        .scene.movie-out { animation: cameraPanOut 0.9s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+        .scene.movie-in { animation: cameraZoomIn 0.9s cubic-bezier(0.24, 1, 0.32, 1) forwards; }
+
+        @keyframes cameraPanOut {
+            0% { transform: scale(1) translateZ(0) rotateX(0deg); filter: blur(0px) brightness(1); opacity: 1; }
+            100% { transform: scale(1.6) translateZ(300px) rotateY(10deg); filter: blur(25px) brightness(2); opacity: 0; }
+        }
+        @keyframes cameraZoomIn {
+            0% { transform: scale(0.4) translateZ(-500px) rotateY(-10deg); filter: blur(30px) brightness(0.2); opacity: 0; }
+            100% { transform: scale(1) translateZ(0) rotateY(0deg); filter: blur(0px) brightness(1); opacity: 1; }
+        }
+
+        /* ----- Ô TRÒN ẢNH VÀ CÚ LIA MÁY KEN BURNS ----- */
+        .circle-container {
+            width: 400px; /* Tăng kích thước ảnh cho đã mắt */
+            height: 400px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 100px rgba(255, 77, 109, 0.4), inset 0 0 50px rgba(255,255,255,0.2);
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: softFloating 6s ease-in-out infinite alternate;
+            transition: all 0.5s;
+        }
+
+        .circle-container:hover {
+            box-shadow: 0 0 150px rgba(255, 77, 109, 0.8), inset 0 0 80px rgba(255,255,255,0.5);
+            border-color: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+
+        @keyframes softFloating {
+            0% { transform: translateY(-15px) rotate(2deg); }
+            100% { transform: translateY(15px) rotate(-2deg); }
+        }
+
+        .circle-container img {
+            width: 100%; height: 100%; object-fit: cover; transform: scale(1.05);
+        }
+        .scene.active .circle-container img {
+            animation: kenBurnsCamera 15s ease-in-out infinite alternate;
+        }
+        @keyframes kenBurnsCamera {
+            0% { transform: scale(1.05) translate(0, 0) rotate(0deg); }
+            50% { transform: scale(1.25) translate(-3%, 2%) rotate(2deg); }
+            100% { transform: scale(1.15) translate(2%, -3%) rotate(-1deg); }
+        }
+
+        /* ----- HẠT SÁNG BOKEHS ĐIỆN ẢNH ----- */
+        .bokeh-particle {
+            position: absolute; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,105,180,0) 70%);
+            pointer-events: none; z-index: 2; mix-blend-mode: screen;
+        }
+        @keyframes bokehFloat {
+            0% { transform: translateY(100vh) translateX(0) scale(0.5); opacity: 0; }
+            20% { opacity: 0.8; box-shadow: 0 0 20px rgba(255,255,255,0.5); }
+            80% { opacity: 0.5; }
+            100% { transform: translateY(-20vh) translateX(100px) scale(2); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-rays"></div>
+    <div class="film-grain-bg"></div>
+
+    <div class="letterbox top" id="lb-top"></div>
+    <div class="letterbox bottom" id="lb-bottom"></div>
+
+    <div class="shockwave" id="shockwave"></div>
+
+    <div class="light-leak" id="light-leak"></div>
+
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="scene active" id="scene-1">
+        <div class="circle-container" onclick="playCinematicTransition(1)">
+            <img src="img1.jpg" alt="Ảnh 1">
+        </div>
+    </div>
+
+    <div class="scene" id="scene-2">
+        <div class="circle-container" onclick="playCinematicTransition(2)">
+            <img src="img5.jpg" alt="Ảnh 2">
+        </div>
+    </div>
+
+    <div class="scene" id="scene-3">
+        <div class="circle-container" onclick="playCinematicTransition(3)">
+            <img src="img2.jpg" alt="Ảnh 3">
+        </div>
+    </div>
+
+    <div class="scene" id="scene-4">
+        <div class="circle-container" onclick="playCinematicTransition(4)">
+            <img src="img4.jpg" alt="Ảnh 4">
+        </div>
+    </div>
+
+    <div class="scene" id="scene-5">
+        <div class="circle-container" onclick="playCinematicTransition(5)">
+            <img src="img3.jpg" alt="Ảnh 5">
+        </div>
+    </div>
+
+    <script>
+        let musicPlayed = false;
+        const music = document.getElementById('bg-music');
+        let isTransitioning = false;
+
+        function playCinematicTransition(currentIdx) {
+            if (isTransitioning) return;
+            isTransitioning = true;
+
+            // Bật nhạc
+            if (!musicPlayed) {
+                music.play().catch(err => console.log("Lỗi phát nhạc:", err));
+                musicPlayed = true;
+            }
+
+            const currentScene = document.getElementById('scene-' + currentIdx);
+            let nextIdx = currentIdx + 1;
+            if (nextIdx > 5) nextIdx = 1; 
+            const nextScene = document.getElementById('scene-' + nextIdx);
+
+            const lbTop = document.getElementById('lb-top');
+            const lbBottom = document.getElementById('lb-bottom');
+            const lightLeak = document.getElementById('light-leak');
+            const shockwave = document.getElementById('shockwave');
+
+            // Kích hoạt các hiệu ứng toàn màn hình
+            lbTop.classList.add('cinematic-squeeze');
+            lbBottom.classList.add('cinematic-squeeze');
+            lightLeak.classList.add('flash');
+            
+            // Bùng nổ sóng xung kích
+            shockwave.classList.remove('explode');
+            void shockwave.offsetWidth; // Trigger reflow để reset animation
+            shockwave.classList.add('explode');
+
+            currentScene.classList.add('movie-out');
+
+            setTimeout(() => {
+                currentScene.classList.remove('active', 'movie-out');
+                nextScene.classList.add('active', 'movie-in');
+            }, 450);
+
+            setTimeout(() => {
+                lbTop.classList.remove('cinematic-squeeze');
+                lbBottom.classList.remove('cinematic-squeeze');
+                lightLeak.classList.remove('flash');
+                nextScene.classList.remove('movie-in');
+                isTransitioning = false; 
+            }, 1000);
+        }
+
+        // --- HẠT BỤI SAO & BOKEH ---
+        function spawnCinematicBokeh() {
+            const bokeh = document.createElement('div');
+            bokeh.classList.add('bokeh-particle');
+            const size = Math.random() * 40 + 10;
+            bokeh.style.width = size + 'px';
+            bokeh.style.height = size + 'px';
+            bokeh.style.left = Math.random() * 100 + 'vw';
+            
+            const duration = Math.random() * 5 + 5;
+            bokeh.style.animation = `bokehFloat ${duration}s ease-in-out forwards`;
+            document.body.appendChild(bokeh);
+            setTimeout(() => bokeh.remove(), duration * 1000);
+        }
+        setInterval(spawnCinematicBokeh, 300); // Mật độ hạt dày hơn
+
+        // --- MƯA SAO BĂNG ---
+        function spawnShootingStar() {
+            // Tỉ lệ xuất hiện sao băng (không phải lúc nào cũng có để tạo sự bất ngờ)
+            if (Math.random() > 0.6) {
+                const star = document.createElement('div');
+                star.classList.add('shooting-star');
+                
+                // Vị trí bắt đầu ngẫu nhiên ở nửa trên bên phải màn hình
+                star.style.top = (Math.random() * 50 - 20) + 'vh';
+                star.style.left = (Math.random() * 50 + 70) + 'vw';
+                
+                // Tốc độ lướt qua cực nhanh
+                const duration = Math.random() * 1.5 + 1;
+                star.style.animation = `starShoot ${duration}s linear forwards`;
+                
+                document.body.appendChild(star);
+                setTimeout(() => star.remove(), duration * 1000);
+            }
+        }
+        setInterval(spawnShootingStar, 2000); // Cứ 2s kiểm tra tung 1 sao băng
+    </script>
+</body>
+</html>
